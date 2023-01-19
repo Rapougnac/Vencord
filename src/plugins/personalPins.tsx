@@ -104,7 +104,7 @@ export default definePlugin({
         return (
             <Menu.MenuItem
                 id="local-pin"
-                label="Locally Pinned Messages"
+                label="Locally Pin Message"
                 action={() => console.log("Hello global menu")}
                 icon={discordProps => <TestIcon {...discordProps} />}
             />
