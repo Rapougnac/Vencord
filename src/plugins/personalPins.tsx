@@ -32,16 +32,16 @@ waitFor(
 );
 let InnerChildWrapper;
 waitFor(["JO", "ZP", "iz"], m => (InnerChildWrapper = m.JO));
-let InnerInnerChild;
-waitFor(
-    e =>
-        e
-            ?.toString?.()
-            .includes(
-                "n(){f(this,n);var e;(e=t.apply(this,arguments)).handleKeyPress=function(t){var"
-            ),
-    m => (InnerInnerChild = m)
-);
+// let InnerInnerChild;
+// waitFor(
+//     e =>
+//         e
+//             ?.toString?.()
+//             .includes(
+//                 "n(){f(this,n);var e;(e=t.apply(this,arguments)).handleKeyPress=function(t){var"
+//             ),
+//     m => (InnerInnerChild = m)
+// );
 
 export default definePlugin({
     name: "PersonalPins",
@@ -137,13 +137,7 @@ export default definePlugin({
                         tooltip="Locally Pinned Messages"
                         aria-label="Locally Pinned Messages"
                         icon={TestIcon}
-                    >
-                        {dProps => (
-                            <InnerInnerChild
-                                {...dProps}
-                            />
-                        )}
-                    </InnerChildWrapper>
+                    />
                 )}
             </WrapperHeaderIcon>
         );
