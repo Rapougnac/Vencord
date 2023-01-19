@@ -17,13 +17,12 @@
 */
 
 
-import * as DataStore from "@api/DataStore";
 import { Devs } from "@utils/constants";
-import { useAwaiter } from "@utils/misc";
 import definePlugin from "@utils/types";
 import { waitFor } from "@webpack";
-import { Menu, React } from "@webpack/common";
+import { Menu } from "@webpack/common";
 import { Channel, Message } from "discord-types/general";
+import type React from "react";
 
 let WrapperHeaderIcon;
 waitFor(
@@ -94,7 +93,7 @@ export default definePlugin({
             <Menu.MenuItem
                 id="local-pin"
                 label="Locally Pin Message"
-                action={() => { }}
+                action={(event: React.MouseEvent<HTMLElement>) => { }}
                 icon={discordProps => <TestIcon {...discordProps} />}
             />
         );
@@ -105,20 +104,22 @@ export default definePlugin({
             <Menu.MenuItem
                 id="local-pin"
                 label="Locally Pin Message"
-                action={() => console.log("Hello global menu")}
+                action={(...args) => console.log("Global Menu", args)}
                 icon={discordProps => <TestIcon {...discordProps} />}
             />
         );
     },
 
-    pinMessageLocally() {
-        const [locallyPinnedMessages, , isPending] = useAwaiter(() =>
-            DataStore.get<{ [key: string]: Message; }>(
-                "PersonalPins_pinnedMessages"
-            )
-        );
-        if (isPending) return;
-        console.log(locallyPinnedMessages);
+    pinMessageLocally(event: React.MouseEvent<HTMLElement>) {
+        // const [locallyPinnedMessages, , isPending] = useAwaiter(() =>
+        //     DataStore.get<{ [key: string]: Message; }>(
+        //         "PersonalPins_pinnedMessages"
+        //     )
+        // );
+        // if (isPending) return;
+        // console.log(locallyPinnedMessages);
+        const pinnedMessages = [];
+
     },
 
     renderLocalPinsIcon({ channel }: { channel: Channel; }) {
