@@ -16,21 +16,14 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-import { Devs } from "@utils/constants";
-import definePlugin from "@utils/types";
-
-export default definePlugin({
-    name: "MessageAccessoriesAPI",
-    description: "API to add message accessories.",
-    authors: [Devs.Cyn],
-    patches: [
-        {
-            find: ".Messages.REMOVE_ATTACHMENT_BODY",
-            replacement: {
-                match: /(.container\)?,children:)(\[[^\]]+\])(}\)\};return)/,
-                replace: (_, pre, accessories, post) =>
-                    `${pre}Vencord.Api.MessageAccessories._modifyAccessories(${accessories},this.props)${post}`,
-            },
-        },
-    ],
-});
+export function Badge({ text, color }): JSX.Element {
+    return (
+        <div className="vc-plugins-badge" style={{
+            backgroundColor: color,
+            justifySelf: "flex-end",
+            marginLeft: "auto"
+        }}>
+            {text}
+        </div>
+    );
+}
