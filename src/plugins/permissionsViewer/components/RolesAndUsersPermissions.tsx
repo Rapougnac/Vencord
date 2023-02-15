@@ -100,7 +100,9 @@ function RolesAndUsersPermissionsComponent({ permissions, guild, modalProps, hea
                                         <Text variant="text-md/normal">{
                                             permission.type === PermissionType.Role
                                                 ? role?.name ?? "Unknown Role"
-                                                : user?.tag ?? requestSucess === undefined ? "Loading User..." : "Unknown User"
+                                                : (user?.tag) == null
+                                                    ? requestSucess === undefined ? "Loading User..." : "Unknown User"
+                                                    : user.tag
                                         }</Text>
                                     </div>
                                 );
