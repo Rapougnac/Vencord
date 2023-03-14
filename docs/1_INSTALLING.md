@@ -1,5 +1,5 @@
 > **Warning**
-> These instructions are only for advanced users. If you're not a Developer, you should use our [graphical installer](https://github.com/Vendicated/VencordInstaller#usage) instead. 
+> These instructions are only for advanced users. If you're not a Developer, you should use our [graphical installer](https://github.com/Vendicated/VencordInstaller#usage) instead.
 
 # Installation Guide
 
@@ -31,11 +31,13 @@ Welcome to Megu's Installation Guide! In this file, you will learn about how to 
 
 Install `pnpm`:
 
-> :exclamation: this may need to be run as admin depending on your system, and you may need to close and reopen your terminal.
+> :exclamation: This next command may need to be run as admin/sudo depending on your system, and you may need to close and reopen your terminal for pnpm to be in your PATH.
 
 ```shell
 npm i -g pnpm
 ```
+
+> :exclamation: **IMPORTANT** Make sure you aren't using an admin/root terminal from here onwards. It **will** mess up your Discord/Vencord instance and you **will** most likely have to reinstall.
 
 Clone Vencord:
 
@@ -183,7 +185,6 @@ In `index.js`:
 
 ```js
 require("C:/Users/<your user>/path/to/vencord/dist/patcher.js");
-require("../app.asar");
 ```
 
 And in `package.json`:

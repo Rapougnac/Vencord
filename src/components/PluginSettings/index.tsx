@@ -30,11 +30,12 @@ import PluginModal from "@components/PluginSettings/PluginModal";
 import { Switch } from "@components/Switch";
 import { ChangeList } from "@utils/ChangeList";
 import Logger from "@utils/Logger";
+import { Margins } from "@utils/margins";
 import { classes, LazyComponent, useAwaiter } from "@utils/misc";
 import { openModalLazy } from "@utils/modal";
 import { Plugin } from "@utils/types";
 import { findByCode, findByPropsLazy } from "@webpack";
-import { Alerts, Button, Card, Forms, Margins, Parser, React, Select, Text, TextInput, Toasts, Tooltip } from "@webpack/common";
+import { Alerts, Button, Card, Forms, Parser, React, Select, Text, TextInput, Toasts, Tooltip } from "@webpack/common";
 
 import Plugins from "~plugins";
 
@@ -92,12 +93,9 @@ interface PluginCardProps extends React.HTMLProps<HTMLDivElement> {
 }
 
 function PluginCard({ plugin, disabled, onRestartNeeded, onMouseEnter, onMouseLeave, isNew }: PluginCardProps) {
-    const settings = useSettings();
-    const pluginSettings = settings.plugins[plugin.name];
+    const settings = useSettings([`plugins.${plugin.name}.enabled`]).plugins[plugin.name];
 
-    function isEnabled() {
-        return pluginSettings?.enabled || plugin.started;
-    }
+    const isEnabled = () => settings.enabled ?? false;
 
     function openModal() {
         openModalLazy(async () => {
@@ -119,7 +117,7 @@ function PluginCard({ plugin, disabled, onRestartNeeded, onMouseEnter, onMouseLe
                 return;
             } else if (restartNeeded) {
                 // If any dependencies have patches, don't start the plugin yet.
-                pluginSettings.enabled = true;
+                settings.enabled = true;
                 onRestartNeeded(plugin.name);
                 return;
             }
@@ -127,14 +125,14 @@ function PluginCard({ plugin, disabled, onRestartNeeded, onMouseEnter, onMouseLe
 
         // if the plugin has patches, dont use stopPlugin/startPlugin. Wait for restart to apply changes.
         if (plugin.patches) {
-            pluginSettings.enabled = !wasEnabled;
+            settings.enabled = !wasEnabled;
             onRestartNeeded(plugin.name);
             return;
         }
 
         // If the plugin is enabled, but hasn't been started, then we can just toggle it off.
         if (wasEnabled && !plugin.started) {
-            pluginSettings.enabled = !wasEnabled;
+            settings.enabled = !wasEnabled;
             return;
         }
 
@@ -147,7 +145,7 @@ function PluginCard({ plugin, disabled, onRestartNeeded, onMouseEnter, onMouseLe
             return;
         }
 
-        pluginSettings.enabled = !wasEnabled;
+        settings.enabled = !wasEnabled;
     }
 
     return (
@@ -225,7 +223,7 @@ export default ErrorBoundary.wrap(function PluginSettings() {
     const onStatusChange = (status: SearchStatus) => setSearchValue(prev => ({ ...prev, status }));
 
     const pluginFilter = (plugin: typeof Plugins[keyof typeof Plugins]) => {
-        const enabled = settings.plugins[plugin.name]?.enabled || plugin.started;
+        const enabled = settings.plugins[plugin.name]?.enabled;
         if (enabled && searchValue.status === SearchStatus.DISABLED) return false;
         if (!enabled && searchValue.status === SearchStatus.ENABLED) return false;
         if (!searchValue.value.length) return true;
@@ -299,15 +297,15 @@ export default ErrorBoundary.wrap(function PluginSettings() {
     }
 
     return (
-        <Forms.FormSection>
+        <Forms.FormSection className={Margins.top16}>
             <ReloadRequiredCard required={changes.hasChanges} />
 
-            <Forms.FormTitle tag="h5" className={classes(Margins.marginTop20, Margins.marginBottom8)}>
+            <Forms.FormTitle tag="h5" className={classes(Margins.top20, Margins.bottom8)}>
                 Filters
             </Forms.FormTitle>
 
             <div className={cl("filter-controls")}>
-                <TextInput autoFocus value={searchValue.value} placeholder="Search for a plugin..." onChange={onSearch} className={Margins.marginBottom20} />
+                <TextInput autoFocus value={searchValue.value} placeholder="Search for a plugin..." onChange={onSearch} className={Margins.bottom20} />
                 <div className={InputStyles.inputWrapper}>
                     <Select
                         className={InputStyles.inputDefault}
@@ -324,13 +322,15 @@ export default ErrorBoundary.wrap(function PluginSettings() {
                 </div>
             </div>
 
-            <Forms.FormTitle className={Margins.marginTop20}>Plugins</Forms.FormTitle>
+            <Forms.FormTitle className={Margins.top20}>Plugins</Forms.FormTitle>
 
             <div className={cl("grid")}>
                 {plugins}
             </div>
-            <Forms.FormDivider />
-            <Forms.FormTitle tag="h5" className={classes(Margins.marginTop20, Margins.marginBottom8)}>
+
+            <Forms.FormDivider className={Margins.top20} />
+
+            <Forms.FormTitle tag="h5" className={classes(Margins.top20, Margins.bottom8)}>
                 Required Plugins
             </Forms.FormTitle>
             <div className={cl("grid")}>

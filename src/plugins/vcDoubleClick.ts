@@ -19,7 +19,7 @@
 import { migratePluginSettings } from "@api/settings";
 import { Devs } from "@utils/constants";
 import definePlugin from "@utils/types";
-import { SelectedChannelStore } from "@webpack/common";
+import { ChannelStore, SelectedChannelStore } from "@webpack/common";
 
 const timers = {} as Record<string, {
     timeout?: NodeJS.Timeout;
@@ -42,19 +42,26 @@ export default definePlugin({
                 // voice/stage channels
                 {
                     match: /onClick:function\(\)\{(e\.handleClick.+?)}/g,
-                    replace: "onClick:function(){Vencord.Plugins.plugins.VoiceChatDoubleClick.schedule(()=>{$1},e)}",
+                    replace: "onClick:function(){$self.schedule(()=>{$1},e)}",
                 },
             ],
         },
         {
             // channel mentions
-            find: 'className:"channelMention",iconType:(',
+            find: ".shouldCloseDefaultModals",
             replacement: {
-                match: /onClick:(.{1,3}),/,
-                replace: "onClick:(_vcEv)=>(_vcEv.detail>=2||_vcEv.target.className.includes('MentionText'))&&($1)(),",
+                match: /onClick:(\i)(?=,.{0,30}className:"channelMention".+?(\i)\.inContent)/,
+                replace: (_, onClick, props) => ""
+                    + `onClick:(vcDoubleClickEvt)=>$self.shouldRunOnClick(vcDoubleClickEvt,${props})&&${onClick}()`,
             }
         }
     ],
+
+    shouldRunOnClick(e: MouseEvent, { channelId }) {
+        const channel = ChannelStore.getChannel(channelId);
+        if (!channel || ![2, 13].includes(channel.type)) return true;
+        return e.detail >= 2;
+    },
 
     schedule(cb: () => void, e: any) {
         const id = e.props.channel.id as string;

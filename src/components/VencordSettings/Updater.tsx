@@ -16,14 +16,16 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
+import { useSettings } from "@api/settings";
 import ErrorBoundary from "@components/ErrorBoundary";
 import { ErrorCard } from "@components/ErrorCard";
 import { Flex } from "@components/Flex";
 import { handleComponentFailed } from "@components/handleComponentFailed";
 import { Link } from "@components/Link";
+import { Margins } from "@utils/margins";
 import { classes, useAwaiter } from "@utils/misc";
 import { changes, checkForUpdates, getRepo, isNewer, rebuild, update, updateError, UpdateLogger } from "@utils/updater";
-import { Alerts, Button, Card, Forms, Margins, Parser, React, Toasts } from "@webpack/common";
+import { Alerts, Button, Card, Forms, Parser, React, Switch, Toasts } from "@webpack/common";
 
 import gitHash from "~git-hash";
 
@@ -108,14 +110,14 @@ function Updatable(props: CommonProps) {
                     </ErrorCard>
                 </>
             ) : (
-                <Forms.FormText className={Margins.marginBottom8}>
+                <Forms.FormText className={Margins.bottom8}>
                     {isOutdated ? `There are ${updates.length} Updates` : "Up to Date!"}
                 </Forms.FormText>
             )}
 
             {isOutdated && <Changes updates={updates} {...props} />}
 
-            <Flex className={classes(Margins.marginBottom8, Margins.marginTop8)}>
+            <Flex className={classes(Margins.bottom8, Margins.top8)}>
                 {isOutdated && <Button
                     size={Button.Sizes.SMALL}
                     disabled={isUpdating || isChecking}
@@ -174,7 +176,7 @@ function Updatable(props: CommonProps) {
 function Newer(props: CommonProps) {
     return (
         <>
-            <Forms.FormText className={Margins.marginBottom8}>
+            <Forms.FormText className={Margins.bottom8}>
                 Your local copy has more recent commits. Please stash or reset them.
             </Forms.FormText>
             <Changes {...props} updates={changes} />
@@ -183,6 +185,8 @@ function Newer(props: CommonProps) {
 }
 
 function Updater() {
+    const settings = useSettings(["notifyAboutUpdates", "autoUpdate"]);
+
     const [repo, err, repoPending] = useAwaiter(getRepo, { fallbackValue: "Loading..." });
 
     React.useEffect(() => {
@@ -196,7 +200,24 @@ function Updater() {
     };
 
     return (
-        <Forms.FormSection>
+        <Forms.FormSection className={Margins.top16}>
+            <Forms.FormTitle tag="h5">Updater Settings</Forms.FormTitle>
+            <Switch
+                value={settings.notifyAboutUpdates}
+                onChange={(v: boolean) => settings.notifyAboutUpdates = v}
+                note="Shows a toast on startup"
+                disabled={settings.autoUpdate}
+            >
+                Get notified about new updates
+            </Switch>
+            <Switch
+                value={settings.autoUpdate}
+                onChange={(v: boolean) => settings.autoUpdate = v}
+                note="Automatically update Vencord without confirmation prompt"
+            >
+                Automatically update
+            </Switch>
+
             <Forms.FormTitle tag="h5">Repo</Forms.FormTitle>
 
             <Forms.FormText>{repoPending ? repo : err ? "Failed to retrieve - check console" : (
@@ -205,7 +226,7 @@ function Updater() {
                 </Link>
             )} (<HashLink hash={gitHash} repo={repo} disabled={repoPending} />)</Forms.FormText>
 
-            <Forms.FormDivider />
+            <Forms.FormDivider className={Margins.top8 + " " + Margins.bottom8} />
 
             <Forms.FormTitle tag="h5">Updates</Forms.FormTitle>
 
